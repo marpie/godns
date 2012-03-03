@@ -1,25 +1,37 @@
 package dns
 
 import (
+  "bufio"
+  "bytes"
   "testing"
 )
 
-const (
-  // QR     = Message is a query (0)
-  // Opcode = Standard query (0)
-  // TC     = Message is not truncated (0)
-  // RD     = Do query recursively
-  testFlagQuery = uint16(0x0100)
-
-  // QR     = Response (1)
-  // Opcode = Standard query (0)
-  // AA     = Server is not an authority for domain (0)
-  // TC     = Message is not truncated (0)
-  // RD     = Do query recursively (1)
-  // RA     = Server can do recursive queries
-  // RCODE  = No error (0)
-  testFlagResponse = uint16(0x8180)
+var (
+  testHeaderQuery = []byte{0x91, 0xcc, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+  testHeaderResponse = []byte{0x91, 0xcc, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00}
 )
+
+func setUp(b []byte) (*Header, error) {
+  hdr, err := ReadHeader(bufio.NewReader(bytes.NewBuffer(b)))
+
+  return hdr, err
+}
+
+func TestReadHeader(t *testing.T) {
+  _, err := setUp(testHeaderQuery)
+  if err != nil {
+    t.Fatalf("%q", err)
+  }
+
+  hdr, err := setUp(testHeaderResponse)
+  if err != nil {
+    t.Fatalf("%q", err)
+  }
+
+  if hdr.Id != 0x91cc {
+    t.Fatalf("ID should be '0x91cc' but got '0x%x'", hdr.Id)
+  }
+}
 
 func TestFlagOpcode(t *testing.T) {
   var hdr Header
@@ -83,12 +95,11 @@ func TestFlagResponseCode(t *testing.T) {
 }
 
 func TestFlags(t *testing.T) {
-  var hdr Header
-
   // Test Query
-  hdr.Flags = testFlagQuery
+  hdr, _ := setUp(testHeaderQuery)
 
   if !hdr.IsQuery() {
+    t.Logf("\n%b\n%b", hdr.Flags, flagRecursionDesired)
     t.Fatal("Message should be a query but seems to be a response!")
   }
 
@@ -117,7 +128,7 @@ func TestFlags(t *testing.T) {
   }
 
   // Test Response
-  hdr.Flags = testFlagResponse
+  hdr, _ = setUp(testHeaderResponse)
 
   if !hdr.IsResponse() {
     t.Fatal("Message should be a response but seems to be a query!")

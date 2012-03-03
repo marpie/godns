@@ -1,5 +1,10 @@
 package dns
 
+import (
+  "bufio"
+  "io"
+)
+
 const (
   flagQueryResponse = uint16(1 << 15)
   flagOperationCodeShift = 12
@@ -91,7 +96,7 @@ type Header struct {
   // ID is a identifier assigned by the program that generates any kind of 
   // query. This identifier is copied into all replies and can be used by the
   // requestor to relate replies to outstanding questions.
-  Id int16
+  Id uint16
 
   // Flags contains 7 bit fields:
   //   QR      - A one bit field that specifies whether this message is a
@@ -165,5 +170,48 @@ func (hdr *Header) IsRecursionAvailable() bool {
 
 func (hdr *Header) ResponseCode() uint16 {
   return (hdr.Flags&0xF)
+}
+
+func ReadHeader(b *bufio.Reader) (*Header, error) {
+  hdr := new(Header)
+  buf := make([]byte, 2)
+
+  _, err := io.ReadFull(b, buf)
+  if err != nil {
+    return nil, err
+  }
+  hdr.Id = byteToUint16(buf)
+
+  _, err = io.ReadFull(b, buf)
+  if err != nil {
+    return nil, err
+  }
+  hdr.Flags = byteToUint16(buf)
+
+  _, err = io.ReadFull(b, buf)
+  if err != nil {
+    return nil, err
+  }
+  hdr.QuestionCount = byteToUint16(buf)
+
+  _, err = io.ReadFull(b, buf)
+  if err != nil {
+    return nil, err
+  }
+  hdr.AnswerCount = byteToUint16(buf)
+
+  _, err = io.ReadFull(b, buf)
+  if err != nil {
+    return nil, err
+  }
+  hdr.AuthorityCount = byteToUint16(buf)
+
+  _, err = io.ReadFull(b, buf)
+  if err != nil {
+    return nil, err
+  }
+  hdr.AdditionalCount = byteToUint16(buf)
+
+  return hdr, nil
 }
 
