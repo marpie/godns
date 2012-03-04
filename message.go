@@ -9,7 +9,7 @@ var (
 	ErrNotImplemented = errors.New("Not Implemented.")
 )
 
-// Message implements the overall message format of the DNS Specification.
+// Message implements the overall message format of the DNS specification.
 // All messages sent by the domain system are divided into 5 sections (some
 // of which are empty in certain cases).
 type Message struct {
