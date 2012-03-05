@@ -33,19 +33,30 @@ func (name *DNSName) Encode() (b []byte, err error) {
 }
 
 // DecodeDNSName converts the DNS Name Notation to a string.
-func DecodeDNSName(b []byte) (DNSName, error) {
+func DecodeDNSName(b []byte, rawMsg []byte) (DNSName, error) {
 	var dnsStr string
+
 	i := 0
 	for i < len(b) {
 		l := int(b[i])
-		next := i + l + 1
-		if l == 0 {
+		if l >= 0xC0 {
+			// DNS Compression used.
+			tmpName, err := DecodeDNSName(rawMsg[l^0xC0:], rawMsg)
+			if err != nil {
+				return "", err
+			}
+			dnsStr += "." + string(tmpName)
 			break
-		} else if next >= len(b) {
-			return "", ErrInvalidFormat
+		} else {
+			next := i + l + 1
+			if l == 0 {
+				break
+			} else if next >= len(b) {
+				return "", ErrInvalidFormat
+			}
+			dnsStr += "." + string(b[i+1:next])
+			i = next
 		}
-		dnsStr += "." + string(b[i+1:next])
-		i = next
 	}
 
 	return DNSName(dnsStr[1:]), nil
