@@ -18,7 +18,7 @@ type Message struct {
 
 	// The question section contains fields that describe a question to a
 	// name server.
-	Question Question
+	Question []Question
 
 	// The last three sections have the same format!
 

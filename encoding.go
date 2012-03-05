@@ -2,12 +2,7 @@ package dns
 
 import (
 	"bytes"
-	"errors"
 	"strings"
-)
-
-var (
-	ErrInvalidFormat = errors.New("Invalid File Format.")
 )
 
 type DNSName string
@@ -33,7 +28,8 @@ func (name *DNSName) Encode() (b []byte, err error) {
 }
 
 // DecodeDNSName converts the DNS Name Notation to a string.
-func DecodeDNSName(b []byte, rawMsg []byte) (DNSName, error) {
+// nextIdx specifies the position of the following element.
+func DecodeDNSName(b []byte, rawMsg []byte) (name DNSName, err error, nextIdx int) {
 	var dnsStr string
 
 	i := 0
@@ -41,23 +37,25 @@ func DecodeDNSName(b []byte, rawMsg []byte) (DNSName, error) {
 		l := int(b[i])
 		if l >= 0xC0 {
 			// DNS Compression used.
-			tmpName, err := DecodeDNSName(rawMsg[l^0xC0:], rawMsg)
+			l := byteToUint16(b[i:]) ^ 0xC000
+			tmpName, err, _ := DecodeDNSName(rawMsg[l:], rawMsg)
 			if err != nil {
-				return "", err
+				return "", err, 0
 			}
 			dnsStr += "." + string(tmpName)
+			i += 1
 			break
 		} else {
 			next := i + l + 1
 			if l == 0 {
 				break
 			} else if next >= len(b) {
-				return "", ErrInvalidFormat
+				return "", ErrInvalidFormat, 0
 			}
 			dnsStr += "." + string(b[i+1:next])
 			i = next
 		}
 	}
 
-	return DNSName(dnsStr[1:]), nil
+	return DNSName(dnsStr[1:]), nil, i + 1
 }

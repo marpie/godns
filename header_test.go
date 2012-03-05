@@ -1,8 +1,6 @@
 package dns
 
 import (
-	"bufio"
-	"bytes"
 	"testing"
 )
 
@@ -12,7 +10,7 @@ var (
 )
 
 func setUp(b []byte) (*Header, error) {
-	hdr, err := ReadHeader(bufio.NewReader(bytes.NewBuffer(b)))
+	hdr, err := ReadHeader(b)
 
 	return hdr, err
 }

@@ -1,10 +1,5 @@
 package dns
 
-import (
-	"bufio"
-	"io"
-)
-
 const (
 	flagQueryResponse       = 1 << 15
 	flagOperationCodeShift  = 12
@@ -187,45 +182,19 @@ func (hdr *Header) ResponseCode() uint16 {
 }
 
 // ReadHeader reads and parses a request from b.
-func ReadHeader(b *bufio.Reader) (*Header, error) {
+func ReadHeader(b []byte) (*Header, error) {
 	hdr := new(Header)
-	buf := make([]byte, 2)
 
-	_, err := io.ReadFull(b, buf)
-	if err != nil {
-		return nil, err
+	if len(b) < 12 {
+		return nil, ErrInvalidFormat
 	}
-	hdr.Id = byteToUint16(buf)
 
-	_, err = io.ReadFull(b, buf)
-	if err != nil {
-		return nil, err
-	}
-	hdr.Flags = byteToUint16(buf)
-
-	_, err = io.ReadFull(b, buf)
-	if err != nil {
-		return nil, err
-	}
-	hdr.QuestionCount = byteToUint16(buf)
-
-	_, err = io.ReadFull(b, buf)
-	if err != nil {
-		return nil, err
-	}
-	hdr.AnswerCount = byteToUint16(buf)
-
-	_, err = io.ReadFull(b, buf)
-	if err != nil {
-		return nil, err
-	}
-	hdr.AuthorityCount = byteToUint16(buf)
-
-	_, err = io.ReadFull(b, buf)
-	if err != nil {
-		return nil, err
-	}
-	hdr.AdditionalCount = byteToUint16(buf)
+	hdr.Id = byteToUint16(b[0:2])
+	hdr.Flags = byteToUint16(b[2:4])
+	hdr.QuestionCount = byteToUint16(b[4:6])
+	hdr.AnswerCount = byteToUint16(b[6:8])
+	hdr.AuthorityCount = byteToUint16(b[8:10])
+	hdr.AdditionalCount = byteToUint16(b[10:12])
 
 	return hdr, nil
 }
