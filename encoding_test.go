@@ -20,7 +20,6 @@ func TestEncode(t *testing.T) {
 	if len(b) == 0 {
 		t.Fatal("Empty result.")
 	}
-	t.Fatalf("%x", b)
 
 	if str, _ := DecodeDNSName(b); str != dns {
 		t.Fatalf("Convertion failed! Expected '%q' got '%q'", dns, str)
