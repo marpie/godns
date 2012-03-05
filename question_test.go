@@ -24,11 +24,11 @@ func estReadQuestion(t *testing.T) {
 		t.Fatalf("Expected 'noteip.de' got %q", q.Name)
 	}
 
-	if q.Type != QuestionTypeA {
+	if q.Type != TypeA {
 		t.Fatalf("Expected A-Record but got %q", q.Type)
 	}
 
-	if q.Class != QuestionClassIN {
+	if q.Class != ClassIN {
 		t.Fatalf("Expected Class-IN but got %q", q.Class)
 	}
 }
@@ -47,11 +47,11 @@ func TestReadQuestionComplex(t *testing.T) {
 		t.Fatalf("Expected 'noteip.de' got %q", q.Name)
 	}
 
-	if q.Type != QuestionTypeA {
+	if q.Type != TypeA {
 		t.Fatalf("Expected A-Record but got %q", q.Type)
 	}
 
-	if q.Class != QuestionClassIN {
+	if q.Class != ClassIN {
 		t.Fatalf("Expected Class-IN but got %q", q.Class)
 	}
 }

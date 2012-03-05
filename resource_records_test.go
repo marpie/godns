@@ -24,11 +24,11 @@ func TestReadResourceRecord(t *testing.T) {
 		t.Fatalf("Expected 'noteip.de' but got %q", rr.Name)
 	}
 
-	if rr.Type != QuestionTypeA {
+	if rr.Type != TypeA {
 		t.Fatalf("Expected Type-A got %q", rr.Type)
 	}
 
-	if rr.Class != QuestionClassIN {
+	if rr.Class != ClassIN {
 		t.Fatalf("Expected Class-IN got %q", rr.Class)
 	}
 
