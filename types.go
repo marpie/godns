@@ -49,4 +49,3 @@ const (
 	// Any class
 	ClassAny = 255
 )
-
