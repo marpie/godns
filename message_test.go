@@ -9,37 +9,37 @@ var (
 )
 
 func TestReadMessage01(t *testing.T) {
-  msg, err := ReadMessage(testDataMessageAnswer01)
-  if err != nil {
-    t.Fatal(err)
-  }
+	msg, err := ReadMessage(testDataMessageAnswer01)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-  if msg.Header.QuestionCount != 1 {
-    t.Fatalf("QuestionCount should be 1 but got %d", msg.Header.QuestionCount)
-  }
+	if msg.Header.QuestionCount != 1 {
+		t.Fatalf("QuestionCount should be 1 but got %d", msg.Header.QuestionCount)
+	}
 
-  if len(msg.Answer) < 2 {
-    t.Fatalf("len(msg.Answer) should be '2' but got '%d'", len(msg.Answer))
-  }
+	if len(msg.Answer) < 2 {
+		t.Fatalf("len(msg.Answer) should be '2' but got '%d'", len(msg.Answer))
+	}
 
-  if msg.Answer[0].Name != "git.noteip.de" {
-    t.Fatalf("Answer[0].Name should be 'noteip.de' but got %q", msg.Answer[0].Name)
-  }
+	if msg.Answer[0].Name != "git.noteip.de" {
+		t.Fatalf("Answer[0].Name should be 'noteip.de' but got %q", msg.Answer[0].Name)
+	}
 
-  if msg.Answer[0].TTL != 0x15180 {
-    t.Fatalf("Answer[0].TTL should be 8400 but got %q", msg.Answer[0].TTL)
-  }
+	if msg.Answer[0].TTL != 0x15180 {
+		t.Fatalf("Answer[0].TTL should be 8400 but got %q", msg.Answer[0].TTL)
+	}
 
-  if msg.Answer[1].Name != "noteip.dyndns.org" {
-    t.Fatalf("Answer[1].Name should be 'noteip.dyndns.org' but got %q", msg.Answer[1].Name)
-  }
+	if msg.Answer[1].Name != "noteip.dyndns.org" {
+		t.Fatalf("Answer[1].Name should be 'noteip.dyndns.org' but got %q", msg.Answer[1].Name)
+	}
 }
 
 func BenchmarkReadMessage01(b *testing.B) {
-  for i := 0; i < b.N; i++ {
-    _, err := ReadMessage(testDataMessageAnswer01)
-    if err != nil {
-      b.Fatal(err)
-    }
-  }
+	for i := 0; i < b.N; i++ {
+		_, err := ReadMessage(testDataMessageAnswer01)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
 }

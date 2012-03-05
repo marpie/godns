@@ -1,14 +1,19 @@
 package dns
 
+import (
+  "crypto/rand"
+  "math/big"
+)
+
 const (
-	flagQueryResponse       = 1 << 15
-	flagOperationCodeShift  = 12
-	flagAuthoritativeAnswer = 1 << 10
-	flagTruncation          = 1 << 9
-	flagRecursionDesired    = 1 << 8
-	flagRecursionAvailable  = 1 << 7
-	flagResponseCodeBits    = 4
-	flagResponseCodeShift   = 0
+	flagQueryResponse            = uint16(1 << 15)
+	flagOperationCodePosition       = 12
+	flagAuthoritativeAnswer      = uint16(1 << 10)
+	flagTruncation               = uint16(1 << 9)
+	flagRecursionDesired         = uint16(1 << 8)
+	flagRecursionAvailable       = uint16(1 << 7)
+	flagResponseCodeBits         = 4
+	flagResponseCodePosition        = 0
 )
 
 const (
@@ -134,19 +139,43 @@ type Header struct {
 	AdditionalCount uint16
 }
 
+func (hdr *Header) SetQuery(isQuery bool) {
+  // Inverse logic because Query=0.
+  setUint16BitField(&hdr.Flags, flagQueryResponse, !isQuery)
+}
+
 // IsQuery returns true if the message is a query.
 func (hdr *Header) IsQuery() bool {
 	return hdr.Flags&flagQueryResponse == 0
 }
+
+func (hdr *Header) SetResponse(isResponse bool) {
+  setUint16BitField(&hdr.Flags, flagQueryResponse, isResponse)
+}
+
 
 // IsResponse returns true if the message is a response.
 func (hdr *Header) IsResponse() bool {
 	return !hdr.IsQuery()
 }
 
+func (hdr *Header) SetOpcode(opcode uint16) error {
+  if opcode > 0xF {
+    return ErrValueTooLarge
+  }
+
+  opcode &= 0xF
+  hdr.Flags |= opcode << flagOperationCodePosition
+  return nil
+}
+
 // Opcode returns the kind of the message (opcode).
 func (hdr *Header) Opcode() uint16 {
-	return (hdr.Flags << 1) >> flagOperationCodeShift
+	return (hdr.Flags << 1) >> flagOperationCodePosition
+}
+
+func (hdr *Header) SetAuthoritativeAnswer(isAuthoritative bool) {
+  setUint16BitField(&hdr.Flags, flagAuthoritativeAnswer, isAuthoritative)
 }
 
 // IsAuthoritativeAnswer is valid in responses and specifies that the
@@ -156,11 +185,19 @@ func (hdr *Header) IsAuthoritativeAnswer() bool {
 	return hdr.Flags&flagAuthoritativeAnswer != 0
 }
 
+func (hdr *Header) SetTruncated(isTruncated bool) {
+  setUint16BitField(&hdr.Flags, flagTruncation, isTruncated)
+}
+
 // IsTruncated specifies that this message was truncated due to a length
 // greater than 512 characters (UDP). This bit is valid only in datagram
 // messages but not in messages sent over virtual circuits (TCP).
 func (hdr *Header) IsTruncated() bool {
 	return hdr.Flags&flagTruncation != 0
+}
+
+func (hdr *Header) SetRecursionDesired(isRecursionDesired bool) {
+  setUint16BitField(&hdr.Flags, flagRecursionDesired, isRecursionDesired)
 }
 
 // IsRecursionDesired is set in a query and is copied into the response.
@@ -170,15 +207,42 @@ func (hdr *Header) IsRecursionDesired() bool {
 	return hdr.Flags&flagRecursionDesired != 0
 }
 
+func (hdr *Header) SetRecursionAvailable(isRecursionAvailable bool) {
+  setUint16BitField(&hdr.Flags, flagRecursionAvailable, isRecursionAvailable)
+}
+
+
 // IsRecursionAvailable is set or cleared in a response and denotes whether
 // recursive query support is available in the name server.
 func (hdr *Header) IsRecursionAvailable() bool {
 	return hdr.Flags&flagRecursionAvailable != 0
 }
 
+func (hdr *Header) SetResponseCode(responseCode uint16) error {
+  if responseCode > 0xF {
+    return ErrValueTooLarge
+  }
+
+  responseCode &= 0xF
+  hdr.Flags |= responseCode
+  return nil
+}
+
 // ResponseCode is set as part of responses.
 func (hdr *Header) ResponseCode() uint16 {
 	return (hdr.Flags & 0xF)
+}
+
+func NewHeader() (*Header, error) {
+	hdr := new(Header)
+
+  r, err := rand.Int(rand.Reader, big.NewInt(0x7FFF))
+  if err != nil {
+    return nil, err
+  }
+  hdr.Id = uint16(r.Int64())
+
+  return hdr, nil
 }
 
 // ReadHeader reads and parses a request from b.

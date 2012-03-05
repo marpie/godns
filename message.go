@@ -30,6 +30,13 @@ func NewMessage() (*Message, error) {
 	return nil, ErrNotImplemented
 }
 
+func NewQuestion(domainName string) (*Message, error) {
+  //msg := new(Message)
+  //msg.Header, err 
+  return nil, ErrNotImplemented
+}
+
+// ReadMessage parses a message from b.
 func ReadMessage(b []byte) (msg *Message, err error) {
 	msg = new(Message)
 

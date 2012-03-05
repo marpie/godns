@@ -15,6 +15,13 @@ func setUp(b []byte) (*Header, error) {
 	return hdr, err
 }
 
+func TestNewHeader(t *testing.T) {
+  hdr, err := NewHeader()
+  if err != nil {
+    t.Fatal(err)
+  }
+}
+
 func TestReadHeader(t *testing.T) {
 	_, err := setUp(testHeaderQuery)
 	if err != nil {
