@@ -30,10 +30,26 @@ func NewMessage() (*Message, error) {
 	return nil, ErrNotImplemented
 }
 
-func NewQuestion(domainName string) (*Message, error) {
-  //msg := new(Message)
-  //msg.Header, err 
-  return nil, ErrNotImplemented
+func NewDNSQuery(domainName string, queryType uint16, queryClass uint16) (msg *Message, err error) {
+  msg = new(Message)
+
+  msg.Header, err = NewHeader()
+  if err != nil {
+    return nil, err
+  }
+
+  msg.Header.SetQuery(true)
+  msg.Header.SetRecursionDesired(true)
+  msg.Header.SetOpcode(OpcodeQuery)
+
+  q, err := NewQuestion(domainName, queryType, queryClass)
+  if err != nil {
+    return nil, err
+  }
+  msg.Question = append(msg.Question, q)
+  msg.Header.QuestionCount += 1
+
+  return msg, nil
 }
 
 // ReadMessage parses a message from b.

@@ -16,7 +16,7 @@ func setUp(b []byte) (*Header, error) {
 }
 
 func TestNewHeader(t *testing.T) {
-  hdr, err := NewHeader()
+  _, err := NewHeader()
   if err != nil {
     t.Fatal(err)
   }
