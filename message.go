@@ -24,15 +24,15 @@ type Message struct {
 
 	// The answer section contains resource records (RRs) that answer the
 	// question.
-	Answer []ResourceRecords
+	Answer []ResourceRecord
 
 	// The authority section contains RRs that point toward an authoritative
 	// name server.
-	Authority []ResourceRecords
+	Authority []ResourceRecord
 
 	// The additional records section contains RRs which relate to the query,
 	// but are not strictly answers for the question.
-	Additional []ResourceRecords
+	Additional []ResourceRecord
 }
 
 func NewMessage() (*Message, error) {
