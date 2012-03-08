@@ -13,13 +13,13 @@ type Question struct {
 }
 
 func NewQuestion(domainStr string, qType uint16, qClass uint16) (*Question, error) {
-  q := new(Question)
+	q := new(Question)
 
-  q.Name = DNSName(domainStr)
-  q.Type = qType
-  q.Class = qClass
+	q.Name = DNSName(domainStr)
+	q.Type = qType
+	q.Class = qClass
 
-  return q, nil
+	return q, nil
 }
 
 // ReadQuestion parses the question part of the received message. b is the

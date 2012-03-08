@@ -16,10 +16,10 @@ func setUp(b []byte) (*Header, error) {
 }
 
 func TestNewHeader(t *testing.T) {
-  _, err := NewHeader()
-  if err != nil {
-    t.Fatal(err)
-  }
+	_, err := NewHeader()
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestReadHeader(t *testing.T) {

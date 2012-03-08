@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	ErrInvalidFormat  = errors.New("Invalid File Format.")
+	ErrInvalidFormat  = errors.New("Invalid Format.")
 	ErrNotImplemented = errors.New("Not Implemented.")
-  ErrValueTooLarge = errors.New("Value too large.")
+	ErrValueTooLarge  = errors.New("Value too large.")
 )

@@ -13,10 +13,9 @@ func byteToUint32(buf []byte) uint32 {
 }
 
 func setUint16BitField(ui *uint16, bitMask uint16, setField bool) {
-  if setField {
-    *ui |= bitMask
-  } else {
-    *ui &= ^bitMask
-  }
+	if setField {
+		*ui |= bitMask
+	} else {
+		*ui &= ^bitMask
+	}
 }
-
