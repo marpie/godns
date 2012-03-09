@@ -8,23 +8,50 @@ import (
 type DNSName string
 
 // Encode converts a string to the DNS Name Notation format.
-func (name *DNSName) Encode() (b []byte, err error) {
+func (name *DNSName) Encode(rawMsg []byte) (newRaw []byte) {
 	var buf bytes.Buffer
 
+	// prepare wire format
+	tmpName := []byte(*name)
 	parts := strings.Split(string(*name), ".")
+	wireName := make([]byte, len(tmpName)+1)
+	pos := 0
 	for i := 0; i < len(parts); i++ {
-		err := buf.WriteByte(byte(len(parts[i])))
-		if err != nil {
-			return nil, err
-		}
-		_, err = buf.WriteString(parts[i])
-		if err != nil {
-			return nil, err
+		copy(wireName[pos:], []byte{byte(len(parts[i]))})
+		copy(wireName[pos+1:], parts[i])
+
+		pos += len(parts[i]) + 1
+	}
+
+	for {
+		if idx := bytes.Index(rawMsg, wireName); idx == -1 || idx >= 0xFF3F {
+			// wireName not found or idx too big to encode.
+
+			// search next "."
+			sepIdx := bytes.Index(tmpName, []byte{0x2E})
+
+			if sepIdx > -1 {
+				// Write string length and string
+				buf.Write(wireName[:sepIdx+1])
+			} else {
+				buf.Write(wireName[:])
+				// If no "." is found the encoding is done.
+				buf.WriteByte(0x00)
+				break
+			}
+
+			wireName = wireName[sepIdx+1:]
+			tmpName = tmpName[sepIdx+1:]
+		} else {
+			// String found calculate location.
+			loc := uint16(0xC000 + idx)
+			buf.WriteByte(byte(loc >> 8))
+			buf.WriteByte(byte(loc))
+			break
 		}
 	}
-	err = buf.WriteByte(0x00)
 
-	return buf.Bytes(), nil
+	return append(rawMsg, buf.Bytes()...)
 }
 
 // DecodeDNSName converts the DNS Name Notation to a string.

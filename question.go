@@ -12,6 +12,22 @@ type Question struct {
 	Class uint16
 }
 
+func (q *Question) Encode(rawMessage []byte) (newRaw []byte) {
+	// Encode Name
+	newRaw = q.Name.Encode(rawMessage)
+
+	buf := make([]byte, 2)
+	// encode Type
+	uint16ToByte(q.Type, buf)
+	newRaw = append(newRaw[:], buf...)
+
+	// encode Class
+	uint16ToByte(q.Class, buf)
+	newRaw = append(newRaw[:], buf...)
+
+	return
+}
+
 func NewQuestion(domainStr string, qType uint16, qClass uint16) (*Question, error) {
 	q := new(Question)
 

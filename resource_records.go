@@ -28,6 +28,22 @@ type ResourceRecord struct {
 	Data []byte
 }
 
+func (rr *ResourceRecord) Encode(rawMsg []byte) (newRaw []byte) {
+	// encode name
+	newRaw = rr.Name.Encode(rawMsg)
+
+	buf := make([]byte, 10)
+	uint16ToByte(rr.Type, buf)
+	uint16ToByte(rr.Class, buf[2:4])
+	uint32ToByte(rr.TTL, buf[4:8])
+	uint16ToByte(rr.Length, buf[8:10])
+
+	newRaw = append(newRaw[:], buf...)
+	newRaw = append(newRaw[:], rr.Data...)
+
+	return
+}
+
 func ReadResourceRecord(b []byte, rawMsg []byte) (rr *ResourceRecord, err error, nextIdx int) {
 	rr = new(ResourceRecord)
 

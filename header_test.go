@@ -1,6 +1,7 @@
 package dns
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -38,7 +39,15 @@ func TestReadHeader(t *testing.T) {
 	}
 }
 
-func TestFlagOpcode(t *testing.T) {
+func TestHeaderEncode01(t *testing.T) {
+	hdr, _ := setUp(testHeaderQuery)
+	buf := hdr.Encode()
+	if !bytes.Equal(testHeaderQuery, buf) {
+		t.Fatalf("Encode() wrong encoding: %q", buf)
+	}
+}
+
+func TestHeaderFlagOpcode(t *testing.T) {
 	var hdr Header
 	hdr.Flags = 0xA800
 
@@ -54,7 +63,7 @@ func TestFlagOpcode(t *testing.T) {
 	}
 }
 
-func TestFlagAuthoritativeAnswer(t *testing.T) {
+func TestHeaderFlagAuthoritativeAnswer(t *testing.T) {
 	var hdr Header
 	hdr.Flags = 0x400
 
@@ -64,7 +73,7 @@ func TestFlagAuthoritativeAnswer(t *testing.T) {
 	}
 }
 
-func TestFlagTruncation(t *testing.T) {
+func TestHeaderFlagTruncation(t *testing.T) {
 	var hdr Header
 	hdr.Flags = 0x200
 
@@ -74,7 +83,7 @@ func TestFlagTruncation(t *testing.T) {
 	}
 }
 
-func TestFlagRecursionDesired(t *testing.T) {
+func TestHeaderFlagRecursionDesired(t *testing.T) {
 	var hdr Header
 	hdr.Flags = 0x280
 
@@ -84,7 +93,7 @@ func TestFlagRecursionDesired(t *testing.T) {
 	}
 }
 
-func TestFlagResponseCode(t *testing.T) {
+func TestHeaderFlagResponseCode(t *testing.T) {
 	var hdr Header
 	hdr.Flags = 0xA
 
@@ -99,7 +108,7 @@ func TestFlagResponseCode(t *testing.T) {
 	}
 }
 
-func TestFlags(t *testing.T) {
+func TestHeaderFlags(t *testing.T) {
 	// Test Query
 	hdr, _ := setUp(testHeaderQuery)
 

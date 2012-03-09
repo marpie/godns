@@ -26,17 +26,46 @@ type Message struct {
 	Additional []*ResourceRecord
 }
 
-func NewMessage() (*Message, error) {
-	return nil, ErrNotImplemented
+func (msg *Message) Encode() []byte {
+	// Encode Header
+	buf := msg.Header.Encode()
+
+	// Encode Questions
+	for _, q := range msg.Question {
+		buf = q.Encode(buf)
+	}
+
+	// Encode Answers
+	for _, a := range msg.Answer {
+		buf = a.Encode(buf)
+	}
+
+	// Encode Authority
+	for _, a := range msg.Authority {
+		buf = a.Encode(buf)
+	}
+
+	// Encode Additional
+	for _, a := range msg.Additional {
+		buf = a.Encode(buf)
+	}
+
+	return buf
 }
 
-func NewDNSQuery(domainName string, queryType uint16, queryClass uint16) (msg *Message, err error) {
+func NewMessage() (msg *Message, err error) {
 	msg = new(Message)
 
 	msg.Header, err = NewHeader()
 	if err != nil {
 		return nil, err
 	}
+
+	return nil, ErrNotImplemented
+}
+
+func NewQuery(domainName string, queryType uint16, queryClass uint16) (msg *Message, err error) {
+	msg, err = NewMessage()
 
 	msg.Header.SetQuery(true)
 	msg.Header.SetRecursionDesired(true)

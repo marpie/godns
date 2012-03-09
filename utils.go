@@ -12,6 +12,18 @@ func byteToUint32(buf []byte) uint32 {
 	return (uint32(buf[0]) << 24) | (uint32(buf[1]) << 16) | (uint32(buf[2]) << 8) | uint32(buf[3])
 }
 
+func uint16ToByte(val uint16, buf []byte) {
+	buf[0] = byte(val >> 8)
+	buf[1] = byte(val)
+}
+
+func uint32ToByte(val uint32, buf []byte) {
+	buf[0] = byte(val >> 24)
+	buf[1] = byte(val >> 16)
+	buf[2] = byte(val >> 8)
+	buf[3] = byte(val)
+}
+
 func setUint16BitField(ui *uint16, bitMask uint16, setField bool) {
 	if setField {
 		*ui |= bitMask

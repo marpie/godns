@@ -139,6 +139,7 @@ type Header struct {
 	AdditionalCount uint16
 }
 
+// SetQuery sets the QueryResponse flag to Query.
 func (hdr *Header) SetQuery(isQuery bool) {
 	// Inverse logic because Query=0.
 	setUint16BitField(&hdr.Flags, flagQueryResponse, !isQuery)
@@ -149,6 +150,7 @@ func (hdr *Header) IsQuery() bool {
 	return hdr.Flags&flagQueryResponse == 0
 }
 
+// SetResponse sets the QueryResponse flag to Response.
 func (hdr *Header) SetResponse(isResponse bool) {
 	setUint16BitField(&hdr.Flags, flagQueryResponse, isResponse)
 }
@@ -158,6 +160,7 @@ func (hdr *Header) IsResponse() bool {
 	return !hdr.IsQuery()
 }
 
+// SetOpcode sets the message OPCODE variable.
 func (hdr *Header) SetOpcode(opcode uint16) error {
 	if opcode > 0xF {
 		return ErrValueTooLarge
@@ -173,6 +176,7 @@ func (hdr *Header) Opcode() uint16 {
 	return (hdr.Flags << 1) >> flagOperationCodePosition
 }
 
+// SetAuthoritativeAnswer sets the Authoritative-Answer flag.
 func (hdr *Header) SetAuthoritativeAnswer(isAuthoritative bool) {
 	setUint16BitField(&hdr.Flags, flagAuthoritativeAnswer, isAuthoritative)
 }
@@ -184,6 +188,7 @@ func (hdr *Header) IsAuthoritativeAnswer() bool {
 	return hdr.Flags&flagAuthoritativeAnswer != 0
 }
 
+// SetTruncated sets the Truncated flag.
 func (hdr *Header) SetTruncated(isTruncated bool) {
 	setUint16BitField(&hdr.Flags, flagTruncation, isTruncated)
 }
@@ -195,6 +200,7 @@ func (hdr *Header) IsTruncated() bool {
 	return hdr.Flags&flagTruncation != 0
 }
 
+// SetRecursionDesired sets the Recursion-Desired flag.
 func (hdr *Header) SetRecursionDesired(isRecursionDesired bool) {
 	setUint16BitField(&hdr.Flags, flagRecursionDesired, isRecursionDesired)
 }
@@ -206,6 +212,7 @@ func (hdr *Header) IsRecursionDesired() bool {
 	return hdr.Flags&flagRecursionDesired != 0
 }
 
+// SetRecursionAvailable sets the Recursion-Available flag.
 func (hdr *Header) SetRecursionAvailable(isRecursionAvailable bool) {
 	setUint16BitField(&hdr.Flags, flagRecursionAvailable, isRecursionAvailable)
 }
@@ -216,6 +223,7 @@ func (hdr *Header) IsRecursionAvailable() bool {
 	return hdr.Flags&flagRecursionAvailable != 0
 }
 
+// SetResponseCode sets the message Response Code.
 func (hdr *Header) SetResponseCode(responseCode uint16) error {
 	if responseCode > 0xF {
 		return ErrValueTooLarge
@@ -231,6 +239,21 @@ func (hdr *Header) ResponseCode() uint16 {
 	return (hdr.Flags & 0xF)
 }
 
+// Encode converts the Header object to the wire format.
+func (hdr *Header) Encode() []byte {
+	buf := make([]byte, 12)
+
+	uint16ToByte(hdr.Id, buf)
+	uint16ToByte(hdr.Flags, buf[2:4])
+	uint16ToByte(hdr.QuestionCount, buf[4:6])
+	uint16ToByte(hdr.AnswerCount, buf[6:8])
+	uint16ToByte(hdr.AuthorityCount, buf[8:10])
+	uint16ToByte(hdr.AdditionalCount, buf[10:12])
+
+	return buf
+}
+
+// NewHeader returns an Header with a random Id.
 func NewHeader() (*Header, error) {
 	hdr := new(Header)
 
